@@ -77,6 +77,7 @@ module Flare
 
         def setup
           super
+          set_option_index_server
           set_option_dry_run
           @optp.on('-i', '--input=FILE',             "input from file") {|v| @input = v}
           @optp.on('-f', '--format=FORMAT',          "input format [#{Formats.join(',')}]") {|v|
@@ -118,7 +119,14 @@ module Flare
         end
 
         def execute(config, args)
+          parse_index_server(config, args)
           STDERR.puts "please install tokyocabinet via gem command." unless defined? TokyoCabinet
+
+          cluster = nil
+          Flare::Tools::IndexServer.open(config[:index_server_hostname], config[:index_server_port], @timeout) do |s|
+            cluster = Flare::Tools::Cluster.new(s.host, s.port, s.stats_nodes)
+          end
+          return S_NG if cluster.nil?
 
           unless @format.nil? || Formats.include?(@format)
             STDERR.puts "unknown format: #{@format}"

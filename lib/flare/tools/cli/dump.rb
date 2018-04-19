@@ -59,15 +59,17 @@ module Flare
           end
           def initialize filepath_or_writable
             @output = if filepath_or_writable.kind_of?(String)
-                        open(filepath_or_writable, 'w')
+                        CSV.open(filepath_or_writable, 'w',
+                                 :write_headers => true,
+                                 :headers => ["key", "flag", "len", "version", "expire", "data"])
                       else
-                        filepath_or_writable
+                        CSV.new(filepath_or_writable,
+                                 :write_headers => true,
+                                 :headers => ["key", "flag", "len", "version", "expire", "data"])
                       end
-            @output.puts "# key, flag, len, version, expire, data"
-            @writer = CSV::Writer.generate(@output, ',')
           end
           def write data, key, flag, len, version, expire
-            @writer << [key, flag, len, version, expire, data]
+            @output << [key, flag, len, version, expire, data]
           end
           def close
             @output.close unless @output == STDOUT || @output == STDERR

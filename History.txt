@@ -1,3 +1,7 @@
+=== 0.7.4 / 2018-04-19
+* Minor Enhancements
+  * Avoid using CSV::Writer to support ruby-2.*
+
 === 0.7.3 / 2017-04-14
 * Minor Enhancements
   * Avoid using deprecated methods.
