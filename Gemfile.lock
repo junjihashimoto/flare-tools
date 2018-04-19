@@ -4,7 +4,7 @@ GEM
     builder (3.2.2)
     ci_reporter (1.9.3)
       builder (>= 2.1.2)
-    json (1.8.1)
+    json (2.1.0)
     log4r (1.1.10)
     power_assert (0.1.4)
     rake (10.3.2)

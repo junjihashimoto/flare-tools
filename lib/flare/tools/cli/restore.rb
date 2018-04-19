@@ -9,6 +9,7 @@ require 'flare/tools/common'
 require 'flare/util/conversion'
 require 'flare/util/constant'
 require 'flare/tools/cli/sub_command'
+require 'flare/tools/cli/index_server_config'
 require 'csv'
 
 begin
