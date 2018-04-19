@@ -1,19 +1,17 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    builder (3.2.2)
+    builder (3.2.3)
     ci_reporter (1.9.3)
       builder (>= 2.1.2)
-    json (2.1.0)
     log4r (1.1.10)
-    power_assert (0.1.4)
-    rake (10.3.2)
-    rdoc (4.1.2)
-      json (~> 1.4)
-    test-unit (3.0.1)
+    power_assert (1.1.1)
+    rake (12.3.1)
+    rdoc (6.0.3)
+    test-unit (3.2.7)
       power_assert
-    tokyocabinet (1.29.1)
-    zookeeper (1.4.9)
+    tokyocabinet (1.32.0)
+    zookeeper (1.4.11)
 
 PLATFORMS
   ruby
@@ -24,5 +22,8 @@ DEPENDENCIES
   rake
   rdoc
   test-unit
-  tokyocabinet (>= 1.29)
+  tokyocabinet (>= 1.32)
   zookeeper (>= 1.2.6)
+
+BUNDLED WITH
+   1.15.4

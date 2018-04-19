@@ -8,14 +8,11 @@ require 'flare/tools/index_server'
 require 'flare/tools/common'
 require 'flare/util/conversion'
 require 'flare/util/constant'
+require 'flare/util/bwlimit'
 require 'flare/tools/cli/sub_command'
 require 'flare/tools/cli/index_server_config'
 require 'csv'
-
-begin
-  require 'tokyocabinet'
-rescue LoadError => e
-end
+require 'tokyocabinet'
 
 
 module Flare
@@ -71,6 +68,7 @@ module Flare
         include Flare::Util::Conversion
         include Flare::Util::Constant
         include Flare::Tools::Common
+        include Flare::Tools::Cli::IndexServerConfig
 
         myname :restore
         desc   "restore data to nodes. (experimental)"
