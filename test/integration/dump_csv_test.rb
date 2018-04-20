@@ -12,7 +12,7 @@ require 'flare/tools/cli'
 require 'flare/test/cluster'
 require 'subcommands'
 
-class DumpTest < Test::Unit::TestCase
+class DumpCSVTest < Test::Unit::TestCase
   include Flare::Tools::Common
   include Subcommands
 
