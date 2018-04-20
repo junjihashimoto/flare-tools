@@ -41,7 +41,7 @@ module Flare
             "tch"
           end
           def initialize filepath
-            raise "output file not specified." if filepath.nil?
+            raise "input file not specified." if filepath.nil?
             raise "#{filepath} isn't a path." unless filepath.kind_of?(String)
             @hdb = TokyoCabinet::HDB.new
             @hdb.open(filepath, TokyoCabinet::HDB::OCREAT|TokyoCabinet::HDB::OREADER)
@@ -78,7 +78,7 @@ module Flare
           super
           set_option_index_server
           set_option_dry_run
-          @optp.on('-i', '--input=FILE',             "input from file") {|v| @input = v}
+          @optp.on('--input=FILE',             "input from file") {|v| @input = v}
           @optp.on('-f', '--format=FORMAT',          "input format [#{Formats.join(',')}]") {|v|
             @format = v
           }
@@ -106,7 +106,7 @@ module Flare
         def initialize
           super
           @input = nil
-          @format = nil
+          @format = 'tch'
           @wait = 0
           @part = 0
           @partsize = 1
@@ -127,6 +127,10 @@ module Flare
           end
           return S_NG if cluster.nil?
 
+          partition_size = cluster.partition_size
+
+          args = cluster.master_nodekeys
+
           unless @format.nil? || Formats.include?(@format)
             STDERR.puts "unknown format: #{@format}"
             return S_NG
@@ -142,7 +146,17 @@ module Flare
 
           hosts = args.map {|x| x.split(':')}
           hosts.each do |x|
-            if x.size != 2
+            if x.size == 2
+              x << cluster.partition_of_nodename("#{x[0]}:#{x[1]}")
+            elsif x.size == 4
+              if x[3] =~ /^\d+$/
+                STDERR.puts "invalid partition number '#{x.join(':')}'."
+                x[3] = x[3].to_i
+              else
+                STDERR.puts "invalid partition number '#{x.join(':')}'."
+                return S_NG
+              end
+            else
               STDERR.puts "invalid argument '#{x.join(':')}'."
               return S_NG
             end
