@@ -8,11 +8,13 @@ require 'flare/tools/index_server'
 require 'flare/tools/common'
 require 'flare/util/conversion'
 require 'flare/util/constant'
-require 'flare/util/bwlimit'
 require 'flare/tools/cli/sub_command'
-require 'flare/tools/cli/index_server_config'
 require 'csv'
-require 'tokyocabinet'
+
+begin
+  require 'tokyocabinet'
+rescue LoadError => e
+end
 
 
 module Flare
@@ -94,7 +96,6 @@ module Flare
         include Flare::Util::Conversion
         include Flare::Util::Constant
         include Flare::Tools::Common
-        include Flare::Tools::Cli::IndexServerConfig
 
         myname :restore
         desc   "restore data to nodes. (experimental)"
@@ -102,9 +103,8 @@ module Flare
 
         def setup
           super
-          set_option_index_server
           set_option_dry_run
-          @optp.on('--input=FILE',             "input from file") {|v| @input = v}
+          @optp.on('-i', '--input=FILE',             "input from file") {|v| @input = v}
           @optp.on('-f', '--format=FORMAT',          "input format [#{Formats.join(',')}]") {|v|
             @format = v
           }
@@ -144,18 +144,8 @@ module Flare
         end
 
         def execute(config, args)
-          parse_index_server(config, args)
           STDERR.puts "please install tokyocabinet via gem command." unless defined? TokyoCabinet
 
-          cluster = nil
-          Flare::Tools::IndexServer.open(config[:index_server_hostname], config[:index_server_port], @timeout) do |s|
-            cluster = Flare::Tools::Cluster.new(s.host, s.port, s.stats_nodes)
-          end
-          return S_NG if cluster.nil?
-
-          partition_size = cluster.partition_size
-
-          args = cluster.master_nodekeys
 
           unless @format.nil? || Formats.include?(@format)
             STDERR.puts "unknown format: #{@format}"
@@ -172,17 +162,7 @@ module Flare
 
           hosts = args.map {|x| x.split(':')}
           hosts.each do |x|
-            if x.size == 2
-              x << cluster.partition_of_nodename("#{x[0]}:#{x[1]}")
-            elsif x.size == 4
-              if x[3] =~ /^\d+$/
-                STDERR.puts "invalid partition number '#{x.join(':')}'."
-                x[3] = x[3].to_i
-              else
-                STDERR.puts "invalid partition number '#{x.join(':')}'."
-                return S_NG
-              end
-            else
+            if x.size != 2
               STDERR.puts "invalid argument '#{x.join(':')}'."
               return S_NG
             end
