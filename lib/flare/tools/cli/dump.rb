@@ -57,11 +57,11 @@ module Flare
             @output = if filepath_or_writable.kind_of?(String)
                         CSV.open(filepath_or_writable, 'w',
                                  :write_headers => true,
-                                 :headers => ["# key", "flag", "len", "version", "expire", "data"])
+                                 :headers => ["key", "flag", "len", "version", "expire", "data"])
                       else
                         CSV.new(filepath_or_writable,
                                  :write_headers => true,
-                                 :headers => ["# key", "flag", "len", "version", "expire", "data"])
+                                 :headers => ["key", "flag", "len", "version", "expire", "data"])
                       end
           end
           def write data, key, flag, len, version, expire

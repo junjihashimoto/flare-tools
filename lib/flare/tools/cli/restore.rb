@@ -31,6 +31,31 @@ module Flare
           end
         end
 
+        class CsvRestorer < Restorer
+          # uint32_t flag -> L    // uint32_t
+          # time_t   expire -> Q  // unsigned long
+          # uint64_t size -> Q    // uint64_t
+          # uint64_t version -> Q // uint64_t
+          # uint32_t option -> L  // uint32_t
+          def self.myname
+            "csv"
+          end
+          def initialize filepath
+            raise "input file not specified." if filepath.nil?
+            raise "#{filepath} isn't a path." unless filepath.kind_of?(String)
+            @file = File.open(filepath, 'r')
+            @csv_data = CSV.new(@file, headers: true)
+          end
+          def iterate &block
+            while (row = @csv_data.shift)
+              block.call(row['key'], row['data'], row['flag'], row['expire'])
+            end
+          end
+          def close
+            @file.close
+          end
+        end
+
         class TchRestorer < Restorer
           # uint32_t flag -> L    // uint32_t
           # time_t   expire -> Q  // unsigned long
@@ -63,6 +88,7 @@ module Flare
 
         Restorers = []
         Restorers << TchRestorer if defined? TokyoCabinet
+        Restorers << CsvRestorer
         Formats = Restorers.map {|n| n.myname}
 
         include Flare::Util::Conversion
@@ -163,6 +189,8 @@ module Flare
           end
 
           restorer = case @format
+                     when CsvRestorer.myname
+                       CsvRestorer.new(@input)
                      when TchRestorer.myname
                        TchRestorer.new(@input)
                      else
